@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-APP_DIR="/home/ec2-user/curldata.website"
+APP_DIR="/home/ec2-user/curldata-website"
 IMAGE_NAME="curldata-website"
 CONTAINER_NAME="curldata-website"
 HOST_PORT="80"
