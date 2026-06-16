@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CurlData | Dashboard</title>
+  <link rel="stylesheet" href="assets/styles.css" />
+</head>
+<body>
+  <div class="site-shell">
+    <header class="site-header">
+      <a class="brand" href="index.html" aria-label="CurlData home">
+        <img src="assets/curldata-logo-bg.png" alt="CurlData logo" />
+        <span>CurlData</span>
+      </a>
+      <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">☰</button>
+      <nav class="site-nav" aria-label="Main navigation">
+        <a href="index.html">Home</a>
+        <a class="active" href="dashboard.html">Dashboard</a>
+        <div class="nav-dropdown">
+          <a class="nav-drop-trigger" href="blog.html">Blog</a>
+          <div class="nav-menu" aria-label="Blog articles">
+            <a href="blog/launch.html">Article 1: Launch</a>
+          </div>
+        </div>
+        <a href="stats.html">Stats</a>
+        <a href="podcast.html">Podcast</a>
+        <a href="about.html">About</a>
+      </nav>
+    </header>
+
+    <main class="page-main">
+      <section class="page-hero compact">
+        <p class="eyebrow">Interactive tools</p>
+        <h1>CurlData Dashboard</h1>
+        <p>Input scoreboard information and explore game statistics in real time.</p>
+      </section>
+
+      <section class="dashboard-frame-wrap">
+        <iframe title="CurlData analytics dashboard" src="dashboard-widget.html" class="dashboard-frame"></iframe>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>© Copyright CurlData 2026</p>
+      <p>Contact Us: <a href="mailto:info@curldata.ca">info@curldata.ca</a></p>
+    </footer>
+  </div>
+  <script src="assets/main.js"></script>
+</body>
+</html>

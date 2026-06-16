@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CurlData Dashboard Widget</title>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <style>
+    :root {
+      --bg: #05060d;
+      --panel: rgba(18, 24, 48, 0.92);
+      --panel-2: rgba(10, 16, 34, 0.96);
+      --text: #f5f7ff;
+      --muted: #aeb7d7;
+      --blue: #3547ff;
+      --blue-bright: #6070ff;
+      --red: #ee181e;
+      --line: rgba(255, 255, 255, 0.16);
+      --shadow: 0 24px 70px rgba(0, 0, 0, 0.36);
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      background:
+        radial-gradient(circle at 12% 10%, rgba(53, 71, 255, 0.28), transparent 28%),
+        radial-gradient(circle at 88% 12%, rgba(238, 24, 30, 0.16), transparent 24%),
+        linear-gradient(135deg, #05060d 0%, #081129 52%, #03040a 100%);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      padding: clamp(16px, 3vw, 28px);
+    }
+
+    .dashboard-widget {
+      max-width: 1120px;
+      margin: 0 auto;
+    }
+
+    .dashboard-intro,
+    .scoreboard-panel,
+    .chart-panel {
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+    }
+
+    .dashboard-intro {
+      position: relative;
+      overflow: hidden;
+      padding: clamp(20px, 3vw, 30px);
+      margin-bottom: 18px;
+    }
+
+    .dashboard-intro::after {
+      content: "";
+      position: absolute;
+      width: 240px;
+      height: 240px;
+      border: 34px solid rgba(53, 71, 255, 0.25);
+      border-radius: 50%;
+      right: -90px;
+      top: -100px;
+      pointer-events: none;
+    }
+
+    .eyebrow {
+      margin: 0 0 8px;
+      color: #c9d0ff;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      font-size: 0.74rem;
+      font-weight: 800;
+    }
+
+    #instruct {
+      position: relative;
+      z-index: 1;
+      margin: 0;
+      max-width: 760px;
+      color: var(--muted);
+      line-height: 1.65;
+      font-size: 1.02rem;
+      text-align: left;
+    }
+
+    .scoreboard-panel {
+      padding: clamp(18px, 3vw, 28px);
+      margin-bottom: 18px;
+    }
+
+    .controls-grid {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: end;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    .control-group {
+      display: grid;
+      gap: 8px;
+      min-width: 210px;
+    }
+
+    label {
+      color: #dce2ff;
+      font-weight: 800;
+      font-size: 0.92rem;
+    }
+
+    select,
+    input[type="button"] {
+      appearance: none;
+      border: 1px solid rgba(255,255,255,0.18);
+      border-radius: 14px;
+      color: var(--text);
+      background: rgba(255,255,255,0.07);
+      min-height: 44px;
+      padding: 10px 13px;
+      font: inherit;
+      font-weight: 700;
+      outline: none;
+    }
+
+    select:focus,
+    input[type="button"]:focus {
+      box-shadow: 0 0 0 3px rgba(96, 112, 255, 0.26);
+      border-color: rgba(96, 112, 255, 0.8);
+    }
+
+    select option {
+      color: #101324;
+      background: #ffffff;
+    }
+
+    input[type="button"] {
+      cursor: pointer;
+      background: linear-gradient(135deg, var(--blue), var(--blue-bright));
+      border-color: rgba(255,255,255,0.08);
+      box-shadow: 0 14px 34px rgba(53, 71, 255, 0.26);
+      transition: transform 160ms ease, box-shadow 160ms ease;
+    }
+
+    input[type="button"]:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 18px 42px rgba(53, 71, 255, 0.36);
+    }
+
+    .table-wrap {
+      width: 100%;
+      overflow-x: auto;
+      border: 1px solid rgba(255,255,255,0.14);
+      border-radius: 22px;
+      background: rgba(3, 4, 10, 0.38);
+    }
+
+    table {
+      width: 100%;
+      min-width: 760px;
+      border-collapse: collapse;
+      color: var(--text);
+      background: transparent;
+      border: 0 !important;
+    }
+
+    th,
+    td {
+      border: 1px solid rgba(255,255,255,0.12) !important;
+      padding: 10px 8px;
+      text-align: center;
+      vertical-align: middle;
+    }
+
+    th {
+      background: linear-gradient(135deg, rgba(53, 71, 255, 0.34), rgba(238, 24, 30, 0.16));
+      color: white;
+      font-weight: 900;
+      letter-spacing: 0.02em;
+    }
+
+    td {
+      background: rgba(255,255,255,0.045);
+    }
+
+    td input,
+    td select {
+      width: 100%;
+      max-width: 86px;
+      text-align: center;
+      margin: 0;
+      color: var(--text);
+      background: rgba(255,255,255,0.08);
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.14);
+      min-height: 36px;
+      padding: 6px 8px;
+    }
+
+    .team-control {
+      margin-top: 18px;
+    }
+
+    .chart-panel {
+      overflow: hidden;
+      padding: clamp(14px, 2vw, 22px);
+      background: var(--panel-2);
+    }
+
+    #myDiv {
+      min-height: 460px;
+      border-radius: 22px;
+      overflow: hidden;
+      background: rgba(255,255,255,0.96);
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 99;
+      padding-top: 80px;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.64);
+      backdrop-filter: blur(10px);
+    }
+
+    .modal-content {
+      background: #ffffff;
+      color: #101324;
+      margin: auto;
+      padding: clamp(18px, 3vw, 28px);
+      border: 1px solid rgba(255,255,255,0.4);
+      width: min(880px, calc(100% - 32px));
+      border-radius: 24px;
+      box-shadow: 0 24px 80px rgba(0,0,0,0.42);
+    }
+
+    .close {
+      color: #667;
+      float: right;
+      font-size: 32px;
+      font-weight: bold;
+    }
+
+    .close:hover,
+    .close:focus {
+      color: #000;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .modal-content iframe {
+      border-radius: 16px;
+      max-width: 100%;
+    }
+
+    @media (max-width: 680px) {
+      body { padding: 12px; }
+      .controls-grid { display: grid; }
+      .control-group { min-width: 0; }
+      #myDiv { min-height: 540px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="dashboard-widget">
+    <section class="dashboard-intro">
+      <p class="eyebrow">Live game analytics</p>
+      <p id="instruct">Input your game information in the scoreboard below to see your game statistics graph.<br />Fill in as much information as you know live for accurate results.<br />Hover over the graph to see projected win rates based on your current situation and potential outcomes for this end.</p>
+    </section>
+
+    <section class="scoreboard-panel">
+      <div class="controls-grid">
+        <div class="control-group">
+          <label for="endSelect">How many ends is your game?</label>
+          <select name="endSelect" id="endSelect" onchange="endSelector()">
+            <option value="8">8</option>
+            <option value="10">10</option>
+          </select>
+        </div>
+        <input type="button" value="Reset Input Board" onclick="tableReset(ends)" />
+      </div>
+
+      <div class="table-wrap">
+        <table id="test" border="1">
+          <thead id="tableHeader"></thead>
+          <tbody id="tableRows"></tbody>
+        </table>
+      </div>
+
+      <div class="controls-grid team-control">
+        <div class="control-group">
+          <label for="selectTeam">What team is your focus team?</label>
+          <select name="selectTeam" id="selectTeam" onchange="newDefTeam()">
+            <option id="Val1" value="1">1</option>
+            <option id="Val2" value="2">2</option>
+          </select>
+        </div>
+      </div>
+    </section>
+
+    <section class="chart-panel">
+      <div id="myDiv"></div>
+    </section>
+  </main>
+
+  <div id="myModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2>Are you new here?</h2>
+      <p>If so, check out this 2-minute tutorial to get the most out of the CurlData dashboard!</p>
+      <p><iframe width="100%" height="400" src="https://www.youtube.com/embed/1JqiH6laBMM" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></p>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      function withDarkDefaults(layout) {
+        var base = {
+          paper_bgcolor: 'rgba(255,255,255,0.96)',
+          plot_bgcolor: 'rgba(255,255,255,0.96)',
+          font: { family: 'Inter, Arial, sans-serif', color: '#101324' },
+          margin: { t: 40, r: 24, b: 54, l: 58 }
+        };
+        return Object.assign({}, base, layout || {});
+      }
+      function withResponsive(config) {
+        return Object.assign({ responsive: true, displaylogo: false }, config || {});
+      }
+      if (window.Plotly) {
+        var originalNewPlot = window.Plotly.newPlot;
+        var originalReact = window.Plotly.react;
+        window.Plotly.newPlot = function (graphDiv, data, layout, config) {
+          return originalNewPlot.call(window.Plotly, graphDiv, data, withDarkDefaults(layout), withResponsive(config));
+        };
+        window.Plotly.react = function (graphDiv, data, layout, config) {
+          return originalReact.call(window.Plotly, graphDiv, data, withDarkDefaults(layout), withResponsive(config));
+        };
+      }
+    })();
+  </script>
+  <script src="https://consolelog7.github.io/CurlData-Dashboard-Deploy/script.js"></script>
+</body>
+</html>
