@@ -1,0 +1,21 @@
+version: 0.0
+
+os: linux
+
+files:
+  - source: /
+    destination: /home/ec2-user/curldata-website
+    overwrite: true
+
+hooks:
+  BeforeInstall:
+    - location: scripts/cleanup.sh
+      runas: ec2-user
+
+  AfterInstall:
+    - location: scripts/install.sh
+      runas: ec2-user
+
+  ApplicationStart:
+    - location: scripts/start.sh
+      runas: ec2-user
